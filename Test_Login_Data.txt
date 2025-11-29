@@ -1,0 +1,17 @@
+NORMAL:
+
+Username: testuser
+Password: Password123
+Email: testuser@outlook.com
+
+SQL INJECTION: 
+
+Username: ' OR 1=1; --
+Password: anything
+Email: anything@email.com
+
+BAD LOGIN:
+
+Username: hacker";--
+Password: BadPass
+Email: Badhacker@email.com
