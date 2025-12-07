@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from .connection import (
+from src.Student_Wellbeing_App.core.database.connection import (
     get_db_connection,
     DB_NAME,
 )
