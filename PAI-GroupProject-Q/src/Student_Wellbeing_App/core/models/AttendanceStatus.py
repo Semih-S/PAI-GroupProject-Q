@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class AttendanceStatus(str, Enum):
-    PRESENT = "Present"
-    ABSENT = "Absent"
-    EXCUSED = "Excused"
+    PRESENT = "PRESENT"
+    ABSENT = "ABSENT"
+    EXCUSED = "EXCUSED"
+    LATE = "LATE"

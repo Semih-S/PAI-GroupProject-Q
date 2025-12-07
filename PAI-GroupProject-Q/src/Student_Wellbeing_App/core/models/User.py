@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .UserRole import UserRole
+from src.Student_Wellbeing_App.core.models import UserRole
 
 
 @dataclass
@@ -11,5 +11,6 @@ class User:
     password_hash: str
     role: UserRole
 
-    def can_view_personal_wellbeing(self) -> bool:
-        return self.role in {UserRole.WELLBEING_OFFICER, UserRole.ADMIN}
+
+def can_view_personal_wellbeing(self) -> bool:
+    return self.role in {UserRole.WELLBEING_OFFICER, UserRole.ADMIN}

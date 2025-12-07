@@ -8,8 +8,10 @@ class Student:
     lastname: str
     email: str
     password: str
-    year: str
+    year: int
 
-    @property
-    def full_name(self) -> str:
-        return f"{self.first_name} {self.lastname}"
+
+@property
+def full_name(self) -> str:
+    return f"{self.first_name} {self.last_name}"
+
