@@ -6,8 +6,8 @@ Tests dataclass instantiation, field validation, and alert lifecycle.
 import pytest
 from datetime import datetime
 
-from Student_Wellbeing_App.core.models.Alert import Alert
-
+from src.Student_Wellbeing_App.core.models.Alert import Alert
+from src.Student_Wellbeing_App.core.models.AlertType import AlertType
 
 class TestAlertInstantiation:
     """Test suite for Alert model instantiation and field assignment."""
@@ -18,7 +18,7 @@ class TestAlertInstantiation:
         alert = Alert(
             alert_id=1,
             student_id="S001",
-            alert_type="low_attendance",
+            alert_type=AlertType.ATTENDANCE,
             reason="Missing 3 consecutive sessions",
             created_at=now,
         )
@@ -36,7 +36,7 @@ class TestAlertInstantiation:
         alert = Alert(
             alert_id=2,
             student_id="S002",
-            alert_type="low_wellbeing",
+            alert_type=AlertType.WELLBEING,
             reason="Stress level elevated",
             created_at=now,
             resolved=True,
@@ -49,7 +49,7 @@ class TestAlertInstantiation:
         alert = Alert(
             alert_id=3,
             student_id="S003",
-            alert_type="low_performance",
+            alert_type=AlertType.ACADEMIC,
             reason="Recent submissions below threshold",
             created_at=datetime.now(),
         )
@@ -66,7 +66,7 @@ class TestAlertFieldAccess:
         alert = Alert(
             alert_id=4,
             student_id="S004",
-            alert_type="engagement",
+            alert_type=AlertType.OTHER,
             reason="Low platform engagement",
             created_at=now,
         )
@@ -84,7 +84,7 @@ class TestAlertFieldAccess:
         alert = Alert(
             alert_id=5,
             student_id="S005",
-            alert_type="health_concern",
+            alert_type=AlertType.WELLBEING,
             reason="Initial concern",
             created_at=datetime.now(),
             resolved=False,
@@ -104,14 +104,14 @@ class TestAlertFieldAccess:
         alert1 = Alert(
             alert_id=6,
             student_id="S006",
-            alert_type="academic",
+            alert_type=AlertType.ACADEMIC,
             reason="GPA below 2.0",
             created_at=now,
         )
         alert2 = Alert(
             alert_id=6,
             student_id="S006",
-            alert_type="academic",
+            alert_type=AlertType.ACADEMIC,
             reason="GPA below 2.0",
             created_at=now,
         )
@@ -124,14 +124,14 @@ class TestAlertFieldAccess:
         alert1 = Alert(
             alert_id=7,
             student_id="S007",
-            alert_type="type_a",
+            alert_type=AlertType.OTHER,
             reason="Reason A",
             created_at=now,
         )
         alert2 = Alert(
             alert_id=8,
             student_id="S008",
-            alert_type="type_b",
+            alert_type=AlertType.OTHER,
             reason="Reason B",
             created_at=now,
         )
@@ -147,7 +147,7 @@ class TestAlertTypes:
         alert = Alert(
             alert_id=9,
             student_id="S009",
-            alert_type="low_attendance",
+            alert_type=AlertType.ATTENDANCE,
             reason="Missed 5+ sessions",
             created_at=datetime.now(),
         )
@@ -159,7 +159,7 @@ class TestAlertTypes:
         alert = Alert(
             alert_id=10,
             student_id="S010",
-            alert_type="low_wellbeing",
+            alert_type=AlertType.WELLBEING,
             reason="Wellbeing score declined",
             created_at=datetime.now(),
         )
@@ -171,7 +171,7 @@ class TestAlertTypes:
         alert = Alert(
             alert_id=11,
             student_id="S011",
-            alert_type="low_performance",
+            alert_type=AlertType.ACADEMIC,
             reason="Assessment scores below average",
             created_at=datetime.now(),
         )
@@ -183,12 +183,12 @@ class TestAlertTypes:
         alert = Alert(
             alert_id=12,
             student_id="S012",
-            alert_type="custom_alert",
+            alert_type=AlertType.OTHER,
             reason="Custom reason",
             created_at=datetime.now(),
         )
 
-        assert alert.alert_type == "custom_alert"
+        assert alert.alert_type == AlertType.OTHER
 
 
 class TestAlertLifecycle:
@@ -199,7 +199,7 @@ class TestAlertLifecycle:
         alert = Alert(
             alert_id=13,
             student_id="S013",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -211,7 +211,7 @@ class TestAlertLifecycle:
         alert = Alert(
             alert_id=14,
             student_id="S014",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
             resolved=False,
@@ -227,7 +227,7 @@ class TestAlertLifecycle:
         alert = Alert(
             alert_id=15,
             student_id="S015",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
             resolved=True,
@@ -248,7 +248,7 @@ class TestAlertTimestamp:
         alert = Alert(
             alert_id=16,
             student_id="S016",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=now,
         )
@@ -263,14 +263,14 @@ class TestAlertTimestamp:
         alert1 = Alert(
             alert_id=17,
             student_id="S017",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=time1,
         )
         alert2 = Alert(
             alert_id=18,
             student_id="S018",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=time2,
         )
@@ -284,7 +284,7 @@ class TestAlertTimestamp:
         alert = Alert(
             alert_id=19,
             student_id="S019",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=now,
         )
@@ -300,7 +300,7 @@ class TestAlertStudentId:
         alert = Alert(
             alert_id=20,
             student_id="123456",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -312,7 +312,7 @@ class TestAlertStudentId:
         alert = Alert(
             alert_id=21,
             student_id="S2025001",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -324,14 +324,14 @@ class TestAlertStudentId:
         alert1 = Alert(
             alert_id=22,
             student_id="S001",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
         alert2 = Alert(
             alert_id=23,
             student_id="s001",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -347,7 +347,7 @@ class TestAlertDataIntegrity:
         alert = Alert(
             alert_id=24,
             student_id="S024",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -359,7 +359,7 @@ class TestAlertDataIntegrity:
         alert = Alert(
             alert_id=25,
             student_id="S025",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -371,7 +371,7 @@ class TestAlertDataIntegrity:
         alert = Alert(
             alert_id=26,
             student_id="S026",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -383,7 +383,7 @@ class TestAlertDataIntegrity:
         alert = Alert(
             alert_id=27,
             student_id="S027",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -395,7 +395,7 @@ class TestAlertDataIntegrity:
         alert = Alert(
             alert_id=28,
             student_id="S028",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -407,7 +407,7 @@ class TestAlertDataIntegrity:
         alert = Alert(
             alert_id=29,
             student_id="S029",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
             resolved=True,
@@ -424,7 +424,7 @@ class TestAlertRepr:
         alert = Alert(
             alert_id=30,
             student_id="S030",
-            alert_type="test",
+            alert_type=AlertType.OTHER,
             reason="Test alert",
             created_at=datetime.now(),
         )
@@ -439,7 +439,7 @@ class TestAlertRepr:
         alert = Alert(
             alert_id=31,
             student_id="S031",
-            alert_type="critical",
+            alert_type=AlertType.OTHER,
             reason="Critical alert",
             created_at=now,
             resolved=True,
