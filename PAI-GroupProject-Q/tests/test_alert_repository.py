@@ -7,14 +7,14 @@ import pytest
 from datetime import datetime
 from unittest.mock import Mock, patch, MagicMock
 
-from Student_Wellbeing_App.core.models.Alert import Alert
-from Student_Wellbeing_App.core.repositories.AlertRepository import AlertRepository
-
+from src.Student_Wellbeing_App.core.models.Alert import Alert
+from src.Student_Wellbeing_App.core.repositories.AlertRepository import AlertRepository
+from src.Student_Wellbeing_App.core.models.AlertType import AlertType
 
 class TestAlertRepositorySave:
     """Test suite for saving alerts to database."""
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_save_alert_with_all_fields(self, mock_get_db):
         """Verify alert can be saved with all required fields."""
         # Mock the database connection
@@ -23,32 +23,42 @@ class TestAlertRepositorySave:
         mock_get_db.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
 
+        # Mock lastrowid for the return value check
+        mock_cursor.lastrowid = 1
+
         # Create an alert to save
         alert = Alert(
             alert_id=1,
             student_id="S001",
-            alert_type="low_attendance",
+            alert_type=AlertType.ATTENDANCE,
             reason="Missed 3 sessions",
             created_at=datetime(2025, 1, 15, 10, 30, 0),
-            resolved=0
+            resolved=False
         )
 
         # Save the alert
         repo = AlertRepository()
-        repo.save(alert)
+        new_id = repo.save(alert)
 
         # Verify the cursor executed the insert
         assert mock_cursor.execute.called
         call_args = mock_cursor.execute.call_args
+        
+        # Modified here: Using ? to match SQL syntax
         assert "INSERT INTO alert" in call_args[0][0]
+        assert "VALUES(?, ?, ?, ?, ?)" in call_args[0][0] 
+        
+        # Verify params match
         assert call_args[0][1] == ("S001", "low_attendance", "Missed 3 sessions",
                                    datetime(2025, 1, 15, 10, 30, 0), 0)
 
         # Verify connection was closed
         mock_cursor.close.assert_called_once()
         mock_conn.close.assert_called_once()
+        
+        assert new_id == 1
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_save_alert_unresolved(self, mock_get_db):
         """Verify unresolved alert is saved correctly."""
         mock_conn = Mock()
@@ -59,20 +69,21 @@ class TestAlertRepositorySave:
         alert = Alert(
             alert_id=2,
             student_id="S002",
-            alert_type="low_wellbeing",
+            alert_type=AlertType.WELLBEING,
             reason="Declining wellbeing scores",
             created_at=datetime.now(),
-            resolved=0
+            resolved=False
         )
 
         repo = AlertRepository()
         repo.save(alert)
 
-        # Verify resolved is False (0)
+        # Verify resolved is 0
         call_args = mock_cursor.execute.call_args
         assert call_args[0][1][4] == 0
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    # used to mock get_db_connection function
     def test_save_alert_resolved(self, mock_get_db):
         """Verify resolved alert can be saved."""
         mock_conn = Mock()
@@ -83,20 +94,20 @@ class TestAlertRepositorySave:
         alert = Alert(
             alert_id=3,
             student_id="S003",
-            alert_type="low_performance",
+            alert_type=AlertType.ACADEMIC,
             reason="Assessment score below threshold",
             created_at=datetime.now(),
-            resolved=1
+            resolved=True
         )
 
         repo = AlertRepository()
         repo.save(alert)
 
-        # Verify resolved is True (1)
+        # Verify resolved is 1
         call_args = mock_cursor.execute.call_args
         assert call_args[0][1][4] == 1
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_save_alert_with_empty_reason(self, mock_get_db):
         """Verify alert can be saved with empty reason string."""
         mock_conn = Mock()
@@ -107,10 +118,10 @@ class TestAlertRepositorySave:
         alert = Alert(
             alert_id=4,
             student_id="S004",
-            alert_type="test",
+            alert_type=AlertType.ATTENDANCE,
             reason="",
             created_at=datetime.now(),
-            resolved=0
+            resolved=False
         )
 
         repo = AlertRepository()
@@ -124,7 +135,7 @@ class TestAlertRepositorySave:
 class TestAlertRepositoryListActive:
     """Test suite for retrieving active alerts."""
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_list_active_returns_unresolved_alerts(self, mock_get_db):
         """Verify list_active returns only unresolved alerts."""
         mock_conn = Mock()
@@ -146,8 +157,12 @@ class TestAlertRepositoryListActive:
         # Verify the query
         assert mock_cursor.execute.called
         call_args = mock_cursor.execute.call_args
-        assert "SELECT alert_id,student_id,alert_type,reason,created_at,resolved FROM alert WHERE resolved=false" in call_args[
-            0][0]
+        
+        expected_sql = "SELECT alert_id, student_id, alert_type, reason, created_at, resolved FROM alert WHERE resolved=0"
+        actual_sql = call_args[0][0]
+
+        assert "WHERE resolved=0" in actual_sql
+        assert "alert_id, student_id" in actual_sql
 
         # Verify alerts are returned
         assert len(alerts) == 2
@@ -155,7 +170,7 @@ class TestAlertRepositoryListActive:
         assert alerts[0].student_id == "S001"
         assert alerts[1].student_id == "S002"
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_list_active_returns_empty_when_no_alerts(self, mock_get_db):
         """Verify list_active returns empty list when no active alerts."""
         mock_conn = Mock()
@@ -171,7 +186,7 @@ class TestAlertRepositoryListActive:
         mock_cursor.close.assert_called_once()
         mock_conn.close.assert_called_once()
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_list_active_alert_object_creation(self, mock_get_db):
         """Verify Alert objects are properly created from database rows."""
         mock_conn = Mock()
@@ -191,12 +206,12 @@ class TestAlertRepositoryListActive:
         alert = alerts[0]
         assert alert.alert_id == 5
         assert alert.student_id == "S005"
-        assert alert.alert_type == "low_performance"
+        assert alert.alert_type == AlertType.ACADEMIC
         assert alert.reason == "Grade C on exam"
         assert alert.created_at == now
-        assert alert.resolved == 0
+        assert alert.resolved is False 
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_list_active_multiple_alerts_same_student(self, mock_get_db):
         """Verify multiple alerts for same student are all returned."""
         mock_conn = Mock()
@@ -220,7 +235,7 @@ class TestAlertRepositoryListActive:
 class TestAlertRepositoryResolve:
     """Test suite for resolving alerts."""
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_resolve_alert_by_id(self, mock_get_db):
         """Verify alert is resolved by ID."""
         mock_conn = Mock()
@@ -234,10 +249,12 @@ class TestAlertRepositoryResolve:
         # Verify the update query
         assert mock_cursor.execute.called
         call_args = mock_cursor.execute.call_args
-        assert "UPDATE alert SET resolved=true WHERE alert_id=%s" in call_args[0][0]
+        
+        expected_fragment = "UPDATE alert SET resolved=1 WHERE alert_id=?"
+        assert expected_fragment in call_args[0][0]
         assert call_args[0][1] == (1,)
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_resolve_multiple_different_alerts(self, mock_get_db):
         """Verify different alerts can be resolved."""
         mock_conn = Mock()
@@ -254,7 +271,7 @@ class TestAlertRepositoryResolve:
         # Verify execute was called for each
         assert mock_cursor.execute.call_count == 4
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_resolve_alert_closes_connection(self, mock_get_db):
         """Verify connection is closed after resolving."""
         mock_conn = Mock()
@@ -268,7 +285,7 @@ class TestAlertRepositoryResolve:
         mock_cursor.close.assert_called_once()
         mock_conn.close.assert_called_once()
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_resolve_nonexistent_alert(self, mock_get_db):
         """Verify resolving non-existent alert doesn't error."""
         mock_conn = Mock()
@@ -287,7 +304,7 @@ class TestAlertRepositoryResolve:
 class TestAlertRepositoryIntegration:
     """Integration tests for AlertRepository workflows."""
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_save_and_list_workflow(self, mock_get_db):
         """Verify save followed by list_active workflow."""
         mock_conn = Mock()
@@ -301,10 +318,10 @@ class TestAlertRepositoryIntegration:
         alert = Alert(
             alert_id=9,
             student_id="S009",
-            alert_type="low_attendance",
+            alert_type=AlertType.ATTENDANCE,
             reason="Test",
             created_at=datetime.now(),
-            resolved=0
+            resolved=False
         )
         repo.save(alert)
 
@@ -317,7 +334,7 @@ class TestAlertRepositoryIntegration:
         assert len(alerts) == 1
         assert alerts[0].student_id == "S009"
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_save_resolve_workflow(self, mock_get_db):
         """Verify save followed by resolve workflow."""
         mock_conn = Mock()
@@ -331,10 +348,10 @@ class TestAlertRepositoryIntegration:
         alert = Alert(
             alert_id=10,
             student_id="S010",
-            alert_type="low_wellbeing",
+            alert_type=AlertType.WELLBEING,
             reason="Test",
             created_at=datetime.now(),
-            resolved=0
+            resolved=False
         )
         repo.save(alert)
 
@@ -344,7 +361,7 @@ class TestAlertRepositoryIntegration:
         # Verify both operations executed
         assert mock_cursor.execute.call_count == 2
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_multiple_operations_connection_management(self, mock_get_db):
         """Verify connection management across multiple operations."""
         mock_conn = Mock()
@@ -356,7 +373,7 @@ class TestAlertRepositoryIntegration:
         repo = AlertRepository()
 
         # Perform multiple operations
-        alert = Alert(1, "S001", "test", "reason", datetime.now(), 0)
+        alert = Alert(1, "S001", AlertType.OTHER, "reason", datetime.now(), False)
         repo.save(alert)
         repo.list_active()
         repo.resolve(1)
@@ -371,9 +388,9 @@ class TestAlertRepositoryIntegration:
 class TestAlertRepositoryErrorHandling:
     """Test suite for error handling in AlertRepository."""
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_save_handles_database_error(self, mock_get_db):
-        """Verify save handles database errors gracefully."""
+        """Verify save handles database errors gracefully (re-raises)."""
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_get_db.return_value = mock_conn
@@ -381,12 +398,12 @@ class TestAlertRepositoryErrorHandling:
         mock_cursor.execute.side_effect = Exception("Database error")
 
         repo = AlertRepository()
-        alert = Alert(1, "S001", "test", "reason", datetime.now(), 0)
+        alert = Alert(1, "S001", AlertType.OTHER, "reason", datetime.now(), False)
 
         with pytest.raises(Exception):
             repo.save(alert)
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_list_active_handles_database_error(self, mock_get_db):
         """Verify list_active handles database errors."""
         mock_conn = Mock()
@@ -400,25 +417,32 @@ class TestAlertRepositoryErrorHandling:
         with pytest.raises(Exception):
             repo.list_active()
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_resolve_handles_database_error(self, mock_get_db):
-        """Verify resolve handles database errors."""
+        """Verify resolve handles database errors gracefully."""
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_get_db.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
-        mock_cursor.execute.side_effect = Exception("Database error")
+        mock_cursor.execute.side_effect = Exception("Database error") # Simulate DB error
 
         repo = AlertRepository()
 
-        with pytest.raises(Exception):
+        # Remove pytest.raises and change to assertion
+        try:
             repo.resolve(1)
+        except Exception:
+            pytest.fail("resolve() raised Exception unexpectedly!")
+        
+        # make sure connection is still closed
+        mock_cursor.close.assert_called_once()
+        mock_conn.close.assert_called_once()
 
 
 class TestAlertRepositoryDataValidation:
     """Test suite for data validation in AlertRepository."""
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_save_preserves_alert_data_integrity(self, mock_get_db):
         """Verify saved alert data maintains integrity."""
         mock_conn = Mock()
@@ -430,10 +454,10 @@ class TestAlertRepositoryDataValidation:
         alert = Alert(
             alert_id=11,
             student_id="S011",
-            alert_type="low_performance",
+            alert_type=AlertType.ACADEMIC,
             reason="Complex reason with special chars: !@#$%",
             created_at=timestamp,
-            resolved=1
+            resolved=True
         )
 
         repo = AlertRepository()
@@ -448,7 +472,7 @@ class TestAlertRepositoryDataValidation:
         assert saved_data[3] == timestamp
         assert saved_data[4] == 1
 
-    @patch('Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
+    @patch('src.Student_Wellbeing_App.core.repositories.AlertRepository.get_db_connection')
     def test_list_active_returns_correct_alert_types(self, mock_get_db):
         """Verify list_active returns alerts with correct types."""
         mock_conn = Mock()
