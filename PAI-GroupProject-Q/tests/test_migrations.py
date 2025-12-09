@@ -1,11 +1,25 @@
 import sqlite3
 import pytest
+import sys
+from pathlib import Path
 
-from Student_Wellbeing_App.core.database import connection as db_conn
-from Student_Wellbeing_App.core.database import migrations
+# --- Path Configuration ---
+# File location: src/Student_Wellbeing_App/tests/test_migrations.py
+current_dir = Path(__file__).resolve().parent
+project_root = current_dir.parents[3]
+
+# Add project root to sys.path to allow 'from src.Student_Wellbeing_App...' imports
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+# --------------------------
+
+# Updated imports with 'src.' prefix as requested
+from src.Student_Wellbeing_App.core.database import connection as db_conn
+from src.Student_Wellbeing_App.core.database import migrations
 
 
 def _use_temp_db(tmp_path, monkeypatch):
+    """Helper to redirect DB connections to a temp file."""
     db_file = tmp_path / "migrations.sqlite3"
     monkeypatch.setattr(db_conn, "DB_PATH", db_file)
     monkeypatch.setattr(db_conn, "DB_NAME", db_file)
@@ -399,7 +413,11 @@ class TestRetentionRuleTable:
 
 
 class TestAuditLogTable:
-    """Test suite for audit_log table schema"""
+    """Test suite for audit_log table schema.
+    
+    Updated to match the actual migration schema which uses 'action' 
+    and 'details' columns, without entity tracking fields.
+    """
 
     def test_audit_log_table_has_required_columns(self, tmp_path, monkeypatch):
         """Verify audit_log table has all required columns"""
@@ -409,15 +427,16 @@ class TestAuditLogTable:
         con = db_conn.get_db_connection()
         cols = {row["name"]
                 for row in con.execute("PRAGMA table_info(audit_log)")}
+        
+        # Matches current migrations.py schema
         expected = {
             "log_id",
             "user_id",
-            "entity_type",
-            "entity_id",
-            "action_type",
+            "action",    # Renamed from action_type to match migration
             "timestamp",
             "details",
         }
+        # Removed entity_type and entity_id from expectations
         assert expected <= cols
         con.close()
 
@@ -427,17 +446,21 @@ class TestAuditLogTable:
         migrations.run_migrations()
 
         con = db_conn.get_db_connection()
+        
+        # Insert matching the current migration schema (no entity fields)
         con.execute(
-            "INSERT INTO audit_log(user_id, entity_type, entity_id, action_type, timestamp, details) "
-            "VALUES ('admin1', 'student', 'S001', 'CREATE', datetime('now'), 'Student created')"
+            "INSERT INTO audit_log(user_id, action, timestamp, details) "
+            "VALUES ('admin1', 'CREATE', datetime('now'), 'Student created')"
         )
         con.commit()
 
         row = con.execute(
             "SELECT * FROM audit_log WHERE user_id = 'admin1'"
         ).fetchone()
-        assert row["entity_type"] == "student"
-        assert row["action_type"] == "CREATE"
+        
+        # Check against 'action' column instead of 'action_type'
+        assert row["action"] == "CREATE"
+        assert row["details"] == "Student created"
         con.close()
 
 

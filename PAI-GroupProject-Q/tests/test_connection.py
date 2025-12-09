@@ -1,31 +1,38 @@
 import sqlite3
 import pytest
 
-from ..src.Student_Wellbeing_App.core.database import connection as db_conn
-from ..src.Student_Wellbeing_App.core.database import migrations
-
+# Concise imports: Assumes pytest is run from the project root (G:\BG project)
+from src.Student_Wellbeing_App.core.database import connection as db_conn
+from src.Student_Wellbeing_App.core.database import migrations
 
 def _use_temp_db(tmp_path, monkeypatch):
+    """
+    Helper to create a temporary database for testing.
+    Redirects DB paths in both connection and migrations modules.
+    """
     db_file = tmp_path / "test.sqlite3"
+    
+    # Mock the DB_PATH/DB_NAME in the connection module
     monkeypatch.setattr(db_conn, "DB_PATH", db_file)
     monkeypatch.setattr(db_conn, "DB_NAME", db_file)
-    # keep migrations prints/paths consistent
+    
+    # Also mock it in migrations to prevent creating the real DB during imports/tests
     monkeypatch.setattr(migrations, "DB_NAME", db_file)
+    
     return db_file
 
-
 class TestGetDbConnection:
-    """Test suite for get_db_connection function"""
+    """Test suite for the primary database connection function."""
 
     def test_get_db_connection_returns_connection_object(self, tmp_path, monkeypatch):
-        """Verify get_db_connection returns a valid sqlite3.Connection"""
+        """Verify get_db_connection returns a valid sqlite3.Connection object."""
         _use_temp_db(tmp_path, monkeypatch)
         con = db_conn.get_db_connection()
         assert isinstance(con, sqlite3.Connection)
         con.close()
 
     def test_get_db_connection_enforces_foreign_keys(self, tmp_path, monkeypatch):
-        """Verify foreign key constraints are enforced"""
+        """Verify foreign key constraints are enforced (PRAGMA foreign_keys = ON)."""
         _use_temp_db(tmp_path, monkeypatch)
         con = db_conn.get_db_connection()
         con.execute("CREATE TABLE parent(id INTEGER PRIMARY KEY)")
@@ -34,12 +41,13 @@ class TestGetDbConnection:
             "FOREIGN KEY(parent_id) REFERENCES parent(id))"
         )
 
+        # Should raise IntegrityError if we insert a child with a non-existent parent
         with pytest.raises(sqlite3.IntegrityError):
             con.execute("INSERT INTO child(parent_id) VALUES (999)")
         con.close()
 
     def test_get_db_connection_returns_row_objects(self, tmp_path, monkeypatch):
-        """Verify row_factory is set to sqlite3.Row for dict-like access"""
+        """Verify row_factory is set to sqlite3.Row for dictionary-like access."""
         _use_temp_db(tmp_path, monkeypatch)
         con = db_conn.get_db_connection()
         con.execute("CREATE TABLE demo(id INTEGER)")
@@ -51,14 +59,14 @@ class TestGetDbConnection:
         con.close()
 
     def test_get_db_connection_row_dict_access(self, tmp_path, monkeypatch):
-        """Verify Row objects support both dict and index access"""
+        """Verify Row objects support both dictionary key and index access."""
         _use_temp_db(tmp_path, monkeypatch)
         con = db_conn.get_db_connection()
         con.execute("CREATE TABLE test(col1 TEXT, col2 INTEGER)")
         con.execute("INSERT INTO test(col1, col2) VALUES ('hello', 42)")
         row = con.execute("SELECT * FROM test").fetchone()
 
-        # Dict access
+        # Dictionary access
         assert row["col1"] == "hello"
         assert row["col2"] == 42
         # Index access
@@ -67,7 +75,7 @@ class TestGetDbConnection:
         con.close()
 
     def test_get_db_connection_independent_instances(self, tmp_path, monkeypatch):
-        """Verify each call returns a new independent connection"""
+        """Verify each call returns a new, independent connection instance."""
         _use_temp_db(tmp_path, monkeypatch)
         con1 = db_conn.get_db_connection()
         con2 = db_conn.get_db_connection()
@@ -77,7 +85,7 @@ class TestGetDbConnection:
         con2.close()
 
     def test_get_db_connection_can_execute_queries(self, tmp_path, monkeypatch):
-        """Verify connection can execute and commit queries"""
+        """Verify the connection can execute queries and commit changes."""
         _use_temp_db(tmp_path, monkeypatch)
         con = db_conn.get_db_connection()
         con.execute("CREATE TABLE test(id INTEGER PRIMARY KEY, value TEXT)")
@@ -90,7 +98,7 @@ class TestGetDbConnection:
         con.close()
 
     def test_get_db_connection_handles_null_values(self, tmp_path, monkeypatch):
-        """Verify NULL values are properly handled"""
+        """Verify NULL values from the database are handled correctly as None."""
         _use_temp_db(tmp_path, monkeypatch)
         con = db_conn.get_db_connection()
         con.execute("CREATE TABLE test(id INTEGER, value TEXT)")
@@ -103,17 +111,21 @@ class TestGetDbConnection:
 
 
 class TestGetDbPool:
-    """Test suite for get_db_pool function (backwards-compatibility shim)"""
+    """
+    Test suite for get_db_pool function.
+    Note: Requires get_db_pool to be defined in connection.py (usually as an alias).
+    """
 
     def test_get_db_pool_returns_connection(self, tmp_path, monkeypatch):
-        """Verify get_db_pool returns a connection object"""
+        """Verify get_db_pool returns a connection object."""
         _use_temp_db(tmp_path, monkeypatch)
+        # Ensure the function exists, or this will raise an AttributeError
         pool = db_conn.get_db_pool()
         assert isinstance(pool, sqlite3.Connection)
         pool.close()
 
     def test_get_db_pool_has_foreign_keys_enabled(self, tmp_path, monkeypatch):
-        """Verify pool connection also enforces foreign keys"""
+        """Verify pool connection also enforces foreign keys."""
         _use_temp_db(tmp_path, monkeypatch)
         con = db_conn.get_db_pool()
         con.execute("CREATE TABLE parent(id INTEGER PRIMARY KEY)")
@@ -127,7 +139,7 @@ class TestGetDbPool:
         con.close()
 
     def test_get_db_pool_independent_from_get_db_connection(self, tmp_path, monkeypatch):
-        """Verify pool and direct connection calls return different instances"""
+        """Verify pool and direct connection calls return different instances."""
         _use_temp_db(tmp_path, monkeypatch)
         con1 = db_conn.get_db_connection()
         con2 = db_conn.get_db_pool()
