@@ -1,9 +1,9 @@
 from pathlib import Path
 import sqlite3
 
-DB_FILE = Path.cwd() / "student_wellbeing_db.sqlite3"
-#DB_FILE = Path("student_wellbeing_db.sqlite3")
-#SCHEMA_NAME = "student_wellbeing_db"
+BASE_DIR = Path(__file__).resolve().parent
+DB_FILENAME = "student_wellbeing_db.sqlite3"
+DB_FILE = BASE_DIR / DB_FILENAME
 
 # Removes the database file from disk.
 def wipe_database():
