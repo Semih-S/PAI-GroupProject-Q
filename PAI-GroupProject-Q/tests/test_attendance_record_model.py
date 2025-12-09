@@ -6,8 +6,8 @@ Tests dataclass instantiation, field validation, and attendance record lifecycle
 import pytest
 from datetime import date
 
-from Student_Wellbeing_App.core.models.AttendanceRecord import AttendanceRecord
-from Student_Wellbeing_App.core.models.AttendanceStatus import AttendanceStatus
+from src.Student_Wellbeing_App.core.models.AttendanceRecord import AttendanceRecord
+from src.Student_Wellbeing_App.core.models.AttendanceStatus import AttendanceStatus
 
 
 class TestAttendanceRecordInstantiation:
@@ -482,3 +482,4 @@ class TestAttendanceRecordComparison:
         )
 
         assert record1 != record2
+
