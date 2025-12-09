@@ -10,11 +10,7 @@ from src.Student_Wellbeing_App.core.ui.base_dashboard import BaseDashboard
 
 
 class StaffDashboard(BaseDashboard):
-    """
-    Unified dashboard for:
-    - WELLBEING_OFFICER
-    - COURSE_DIRECTOR
-    """
+    
 
     ROLE_LABELS = {
         UserRole.WELLBEING_OFFICER: "Wellbeing Officer",
@@ -44,10 +40,7 @@ class StaffDashboard(BaseDashboard):
         super().__init__(master, header, *args, **kwargs)
         self._build_ui()
 
-    # ======================================================
-    # UI SHELL
-    # ======================================================
-
+  
     def _build_ui(self):
         notebook = ttk.Notebook(self)
         notebook.pack(fill="both", expand=True)
@@ -66,10 +59,7 @@ class StaffDashboard(BaseDashboard):
         notebook.add(logout_tab, text="Logout")
         self._build_logout_tab(logout_tab)
 
-    # ======================================================
-    # ACADEMIC MONITORING
-    # ======================================================
-
+ 
     def _build_academics_tab(self, parent: ttk.Frame):
         ttk.Label(
             parent,
@@ -193,7 +183,7 @@ class StaffDashboard(BaseDashboard):
         self.ac_results_text.config(state="disabled")
 
     def _show_low_mark_students(self):
-        """Wrapper to fetch low-mark students and render them."""
+        
         try:
             students = self.student_service.list_students()
             low_mark_students = self.academic_service.get_low_mark_students(students)
@@ -259,9 +249,7 @@ class StaffDashboard(BaseDashboard):
         self.ac_results_text.insert("1.0", content)
         self.ac_results_text.config(state="disabled")
 
-    # ======================================================
-    # WELLBEING MONITORING
-    # ======================================================
+   
 
     def _build_wellbeing_tab(self, parent):
         ttk.Label(
@@ -551,9 +539,10 @@ class StaffDashboard(BaseDashboard):
         self.wb_results_text.insert("1.0", content)
         self.wb_results_text.config(state="disabled")
 
-    # ======================================================
+  
 
     def _build_logout_tab(self, parent):
         ttk.Button(
             parent, text="Logout", command=self.master.show_login
         ).pack(anchor="e", padx=10, pady=10)
+
