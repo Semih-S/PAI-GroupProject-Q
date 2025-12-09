@@ -6,7 +6,7 @@ Tests dataclass instantiation, field validation, and audit log lifecycle.
 import pytest
 from datetime import datetime
 
-from Student_Wellbeing_App.core.models.AuditLog import AuditLog
+from src.Student_Wellbeing_App.core.models.AuditLog import AuditLog
 
 
 class TestAuditLogInstantiation:
@@ -637,3 +637,4 @@ class TestAuditLogRepr:
         repr_str = repr(log)
         # Dataclass repr typically includes field names
         assert "log_id" in repr_str or "43" in repr_str
+
