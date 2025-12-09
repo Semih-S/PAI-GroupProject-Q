@@ -5,7 +5,7 @@ Tests dataclass instantiation, field validation, and student lifecycle.
 
 import pytest
 
-from Student_Wellbeing_App.core.models.Student import Student
+from src.Student_Wellbeing_App.core.models.Student import Student
 
 
 class TestStudentInstantiation:
@@ -19,7 +19,7 @@ class TestStudentInstantiation:
             lastname="Doe",
             email="john.doe@university.edu",
             password="SecurePass123!",
-            year="2025",
+            year=2025,
         )
 
         assert student.student_id == "S001"
@@ -27,7 +27,7 @@ class TestStudentInstantiation:
         assert student.lastname == "Doe"
         assert student.email == "john.doe@university.edu"
         assert student.password == "SecurePass123!"
-        assert student.year == "2025"
+        assert student.year == 2025
 
     def test_student_instantiation_with_different_year(self):
         """Verify Student accepts different year values."""
@@ -37,10 +37,10 @@ class TestStudentInstantiation:
             lastname="Smith",
             email="jane.smith@university.edu",
             password="AnotherPass456!",
-            year="2024",
+            year=2024,
         )
 
-        assert student.year == "2024"
+        assert student.year == 2024
 
     def test_student_instantiation_with_various_student_ids(self):
         """Verify Student accepts various student ID formats."""
@@ -53,7 +53,7 @@ class TestStudentInstantiation:
                 lastname="User",
                 email="test@university.edu",
                 password="TestPass123!",
-                year="2025",
+                year=2025,
             )
             assert student.student_id == sid
 
@@ -69,7 +69,7 @@ class TestStudentFieldAccess:
             lastname="Johnson",
             email="alice.johnson@university.edu",
             password="AlicePass789!",
-            year="2023",
+            year=2023,
         )
 
         assert student.student_id is not None
@@ -87,7 +87,7 @@ class TestStudentFieldAccess:
             lastname="Brown",
             email="robert.brown@university.edu",
             password="RobertPass456!",
-            year="2025",
+            year=2025,
         )
 
         student.first_name = "Bob"
@@ -101,7 +101,7 @@ class TestStudentFieldAccess:
             lastname="Davis",
             email="michael.davis@university.edu",
             password="MichaelPass123!",
-            year="2025",
+            year=2025,
         )
 
         student.lastname = "Davies"
@@ -115,7 +115,7 @@ class TestStudentFieldAccess:
             lastname="Wilson",
             email="sarah.wilson@university.edu",
             password="SarahPass789!",
-            year="2024",
+            year=2024,
         )
 
         student.email = "sarah.w@university.edu"
@@ -129,7 +129,7 @@ class TestStudentFieldAccess:
             lastname="Taylor",
             email="emma.taylor@university.edu",
             password="OldPassword123!",
-            year="2025",
+            year=2025,
         )
 
         student.password = "NewPassword456!"
@@ -143,11 +143,11 @@ class TestStudentFieldAccess:
             lastname="Anderson",
             email="david.anderson@university.edu",
             password="DavidPass789!",
-            year="2024",
+            year=2024,
         )
 
-        student.year = "2025"
-        assert student.year == "2025"
+        student.year = 2025
+        assert student.year == 2025
 
 
 class TestStudentFullName:
@@ -161,7 +161,7 @@ class TestStudentFullName:
             lastname="Martinez",
             email="christopher.martinez@university.edu",
             password="ChrisPass123!",
-            year="2025",
+            year=2025,
         )
 
         assert student.full_name == "Christopher Martinez"
@@ -183,7 +183,7 @@ class TestStudentFullName:
                 lastname=last,
                 email="test@university.edu",
                 password="TestPass123!",
-                year="2025",
+                year=2025,
             )
             assert student.full_name == expected
 
@@ -195,7 +195,7 @@ class TestStudentFullName:
             lastname="B",
             email="ab@university.edu",
             password="ABPass123!",
-            year="2025",
+            year=2025,
         )
 
         assert student.full_name == "A B"
@@ -210,7 +210,7 @@ class TestStudentFullName:
             lastname=long_last,
             email="chris@university.edu",
             password="ChrisPass123!",
-            year="2025",
+            year=2025,
         )
 
         assert student.full_name == f"{long_first} {long_last}"
@@ -223,7 +223,7 @@ class TestStudentFullName:
             lastname="Name",
             email="original@university.edu",
             password="OriginalPass123!",
-            year="2025",
+            year=2025,
         )
 
         assert student.full_name == "Original Name"
@@ -244,7 +244,7 @@ class TestStudentEquality:
             lastname="Thompson",
             email="elizabeth.thompson@university.edu",
             password="ElizPass789!",
-            year="2024",
+            year=2024,
         )
         student2 = Student(
             student_id="S014",
@@ -252,7 +252,7 @@ class TestStudentEquality:
             lastname="Thompson",
             email="elizabeth.thompson@university.edu",
             password="ElizPass789!",
-            year="2024",
+            year=2024,
         )
 
         assert student1 == student2
@@ -265,7 +265,7 @@ class TestStudentEquality:
             lastname="White",
             email="jennifer.white@university.edu",
             password="JennyPass456!",
-            year="2025",
+            year=2025,
         )
         student2 = Student(
             student_id="S016",
@@ -273,7 +273,7 @@ class TestStudentEquality:
             lastname="White",
             email="jennifer.white@university.edu",
             password="JennyPass456!",
-            year="2025",
+            year=2025,
         )
 
         assert student1 != student2
@@ -286,7 +286,7 @@ class TestStudentEquality:
             lastname="Harris",
             email="william1@university.edu",
             password="WilliamPass789!",
-            year="2025",
+            year=2025,
         )
         student2 = Student(
             student_id="S017",
@@ -294,7 +294,7 @@ class TestStudentEquality:
             lastname="Harris",
             email="william2@university.edu",
             password="WilliamPass789!",
-            year="2025",
+            year=2025,
         )
 
         assert student1 != student2
@@ -307,7 +307,7 @@ class TestStudentEquality:
             lastname="Clark",
             email="daniel.clark@university.edu",
             password="DanPass123!",
-            year="2025",
+            year=2025,
         )
         student2 = Student(
             student_id="S018",
@@ -315,7 +315,7 @@ class TestStudentEquality:
             lastname="Clark",
             email="daniel.clark@university.edu",
             password="NewDanPass456!",
-            year="2025",
+            year=2025,
         )
 
         assert student1 != student2
@@ -328,7 +328,7 @@ class TestStudentEquality:
             lastname="Lewis",
             email="laura.lewis@university.edu",
             password="LauraPass789!",
-            year="2023",
+            year=2023,
         )
         student2 = Student(
             student_id="S019",
@@ -336,7 +336,7 @@ class TestStudentEquality:
             lastname="Lewis",
             email="laura.lewis@university.edu",
             password="LauraPass789!",
-            year="2024",
+            year=2024,
         )
 
         assert student1 != student2
@@ -353,7 +353,7 @@ class TestStudentEmailFormat:
             lastname="Walker",
             email="patrick.walker@university.edu",
             password="PatrickPass123!",
-            year="2025",
+            year=2025,
         )
 
         assert student.email == "patrick.walker@university.edu"
@@ -366,7 +366,7 @@ class TestStudentEmailFormat:
             lastname="Hall",
             email="nancy.hall2024@university.edu",
             password="NancyPass456!",
-            year="2025",
+            year=2025,
         )
 
         assert student.email == "nancy.hall2024@university.edu"
@@ -387,7 +387,7 @@ class TestStudentEmailFormat:
                 lastname="User",
                 email=email,
                 password="TestPass123!",
-                year="2025",
+                year=2025,
             )
             assert student.email == email
 
@@ -403,7 +403,7 @@ class TestStudentPasswordHandling:
             lastname="Martin",
             email="kevin.martin@university.edu",
             password="C0mpl3x!P@ssw0rd#2025",
-            year="2025",
+            year=2025,
         )
 
         assert student.password == "C0mpl3x!P@ssw0rd#2025"
@@ -416,7 +416,7 @@ class TestStudentPasswordHandling:
             lastname="Garcia",
             email="sandra.garcia@university.edu",
             password="password",
-            year="2025",
+            year=2025,
         )
 
         assert student.password == "password"
@@ -430,7 +430,7 @@ class TestStudentPasswordHandling:
             lastname="Rodriguez",
             email="thomas.rodriguez@university.edu",
             password=long_password,
-            year="2025",
+            year=2025,
         )
 
         assert student.password == long_password
@@ -441,7 +441,7 @@ class TestStudentYearField:
 
     def test_student_year_numeric_string(self):
         """Verify Student accepts numeric year strings."""
-        years = ["2023", "2024", "2025", "2026"]
+        years = [2023, 2024, 2025, 2026]
 
         for year in years:
             student = Student(
@@ -479,7 +479,7 @@ class TestStudentDataIntegrity:
             lastname="Scott",
             email="ryan.scott@university.edu",
             password="RyanPass789!",
-            year="2025",
+            year=2025,
         )
 
         assert isinstance(student.student_id, str)
@@ -492,7 +492,7 @@ class TestStudentDataIntegrity:
             lastname="Green",
             email="michelle.green@university.edu",
             password="MichellePass456!",
-            year="2025",
+            year=2025,
         )
 
         assert isinstance(student.first_name, str)
@@ -505,7 +505,7 @@ class TestStudentDataIntegrity:
             lastname="Adams",
             email="brandon.adams@university.edu",
             password="BrandonPass123!",
-            year="2025",
+            year=2025,
         )
 
         assert isinstance(student.lastname, str)
@@ -518,7 +518,7 @@ class TestStudentDataIntegrity:
             lastname="Nelson",
             email="sophia.nelson@university.edu",
             password="SophiaPass789!",
-            year="2025",
+            year=2025,
         )
 
         assert isinstance(student.email, str)
@@ -531,23 +531,10 @@ class TestStudentDataIntegrity:
             lastname="Carter",
             email="joshua.carter@university.edu",
             password="JoshuaPass456!",
-            year="2025",
+            year=2025,
         )
 
         assert isinstance(student.password, str)
-
-    def test_year_is_string(self):
-        """Verify year field is a string."""
-        student = Student(
-            student_id="S033",
-            first_name="Olivia",
-            lastname="Mitchell",
-            email="olivia.mitchell@university.edu",
-            password="OliviaPass123!",
-            year="2025",
-        )
-
-        assert isinstance(student.year, str)
 
 
 class TestStudentRepr:
@@ -561,7 +548,7 @@ class TestStudentRepr:
             lastname="Perez",
             email="ethan.perez@university.edu",
             password="EthanPass789!",
-            year="2025",
+            year=2025,
         )
 
         repr_str = repr(student)
@@ -575,7 +562,7 @@ class TestStudentRepr:
             lastname="Roberts",
             email="ava.roberts@university.edu",
             password="AvaPass456!",
-            year="2025",
+            year=2025,
         )
 
         repr_str = repr(student)
@@ -590,7 +577,7 @@ class TestStudentRepr:
             lastname="Phillips",
             email="mason.phillips@university.edu",
             password="MasonPass123!",
-            year="2025",
+            year=2025,
         )
         student2 = Student(
             student_id="S037",
@@ -598,7 +585,7 @@ class TestStudentRepr:
             lastname="Campbell",
             email="isabella.campbell@university.edu",
             password="IsabellaPass789!",
-            year="2024",
+            year=2024,
         )
 
         assert repr(student1) != repr(student2)

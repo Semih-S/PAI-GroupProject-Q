@@ -7,6 +7,7 @@ import pytest
 from datetime import datetime
 
 from src.Student_Wellbeing_App.core.models.AuditLog import AuditLog
+from src.Student_Wellbeing_App.core.models.ActionType import ActionType
 
 
 class TestAuditLogInstantiation:
@@ -17,8 +18,8 @@ class TestAuditLogInstantiation:
         now = datetime.now()
         log = AuditLog(
             log_id=1,
-            user_id=100,
-            entitiy_type="student",
+            user_id="U100",
+            entity_type="student",
             entity_id=1001,
             action_type="CREATE",
             timestamp=now,
@@ -26,10 +27,10 @@ class TestAuditLogInstantiation:
         )
 
         assert log.log_id == 1
-        assert log.user_id == 100
-        assert log.entitiy_type == "student"
+        assert log.user_id == "U100"
+        assert log.entity_type == "student"
         assert log.entity_id == 1001
-        assert log.action_type == "CREATE"
+        assert log.action_type == ActionType.CREATE
         assert log.timestamp == now
         assert log.details == "Student record created"
 
@@ -37,8 +38,8 @@ class TestAuditLogInstantiation:
         """Verify AuditLog defaults details to empty string."""
         log = AuditLog(
             log_id=2,
-            user_id=101,
-            entitiy_type="assessment",
+            user_id="U101",
+            entity_type="assessment",
             entity_id=2001,
             action_type="UPDATE",
             timestamp=datetime.now(),
@@ -50,8 +51,8 @@ class TestAuditLogInstantiation:
         """Verify AuditLog can be created with empty details string."""
         log = AuditLog(
             log_id=3,
-            user_id=102,
-            entitiy_type="attendance",
+            user_id="U102",
+            entity_type="attendance",
             entity_id=3001,
             action_type="DELETE",
             timestamp=datetime.now(),
@@ -66,19 +67,20 @@ class TestAuditLogFieldAccess:
 
     def test_audit_log_field_access(self):
         """Verify all AuditLog fields are accessible."""
+        # FIXED: Changed "READ" to "CREATE" as READ is not a valid ActionType
         log = AuditLog(
             log_id=4,
-            user_id=103,
-            entitiy_type="user",
+            user_id="U103",
+            entity_type="user",
             entity_id=4001,
-            action_type="READ",
+            action_type="CREATE",
             timestamp=datetime.now(),
             details="User record accessed",
         )
 
         assert log.log_id is not None
         assert log.user_id is not None
-        assert log.entitiy_type is not None
+        assert log.entity_type is not None
         assert log.entity_id is not None
         assert log.action_type is not None
         assert log.timestamp is not None
@@ -88,8 +90,8 @@ class TestAuditLogFieldAccess:
         """Verify AuditLog fields can be modified after instantiation."""
         log = AuditLog(
             log_id=5,
-            user_id=104,
-            entitiy_type="alert",
+            user_id="U104",
+            entity_type="alert",
             entity_id=5001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -99,16 +101,16 @@ class TestAuditLogFieldAccess:
         log.details = "Updated details"
         assert log.details == "Updated details"
 
-        log.action_type = "UPDATE"
-        assert log.action_type == "UPDATE"
+        log.action_type = ActionType.UPDATE
+        assert log.action_type == ActionType.UPDATE
 
     def test_audit_log_equality(self):
         """Verify two AuditLog instances with same data are equal."""
         now = datetime.now()
         log1 = AuditLog(
             log_id=6,
-            user_id=105,
-            entitiy_type="student",
+            user_id="U105",
+            entity_type="student",
             entity_id=6001,
             action_type="CREATE",
             timestamp=now,
@@ -116,8 +118,8 @@ class TestAuditLogFieldAccess:
         )
         log2 = AuditLog(
             log_id=6,
-            user_id=105,
-            entitiy_type="student",
+            user_id="U105",
+            entity_type="student",
             entity_id=6001,
             action_type="CREATE",
             timestamp=now,
@@ -130,8 +132,8 @@ class TestAuditLogFieldAccess:
         """Verify two AuditLog instances with different data are not equal."""
         log1 = AuditLog(
             log_id=7,
-            user_id=106,
-            entitiy_type="student",
+            user_id="U106",
+            entity_type="student",
             entity_id=7001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -139,8 +141,8 @@ class TestAuditLogFieldAccess:
         )
         log2 = AuditLog(
             log_id=8,
-            user_id=107,
-            entitiy_type="assessment",
+            user_id="U107",
+            entity_type="assessment",
             entity_id=8001,
             action_type="DELETE",
             timestamp=datetime.now(),
@@ -151,72 +153,60 @@ class TestAuditLogFieldAccess:
 
 
 class TestAuditLogActionTypes:
-    """Test suite for different action types."""
+    """Test suite for different action types validation."""
 
     def test_audit_log_create_action(self):
-        """Verify CREATE action type is recognized."""
+        """Verify CREATE action type is correctly processed."""
         log = AuditLog(
             log_id=9,
-            user_id=108,
-            entitiy_type="student",
+            user_id="U108",
+            entity_type="student",
             entity_id=9001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert log.action_type == "CREATE"
+        assert log.action_type == ActionType.CREATE
 
-    def test_audit_log_read_action(self):
-        """Verify READ action type is recognized."""
-        log = AuditLog(
-            log_id=10,
-            user_id=109,
-            entitiy_type="student",
-            entity_id=10001,
-            action_type="READ",
-            timestamp=datetime.now(),
-        )
-
-        assert log.action_type == "READ"
+    # REMOVED: test_audit_log_read_action because READ is not a valid ActionType
 
     def test_audit_log_update_action(self):
-        """Verify UPDATE action type is recognized."""
+        """Verify UPDATE action type is correctly processed."""
         log = AuditLog(
             log_id=11,
-            user_id=110,
-            entitiy_type="student",
+            user_id="U110",
+            entity_type="student",
             entity_id=11001,
             action_type="UPDATE",
             timestamp=datetime.now(),
         )
 
-        assert log.action_type == "UPDATE"
+        assert log.action_type == ActionType.UPDATE
 
     def test_audit_log_delete_action(self):
-        """Verify DELETE action type is recognized."""
+        """Verify DELETE action type is correctly processed."""
         log = AuditLog(
             log_id=12,
-            user_id=111,
-            entitiy_type="student",
+            user_id="U111",
+            entity_type="student",
             entity_id=12001,
             action_type="DELETE",
             timestamp=datetime.now(),
         )
 
-        assert log.action_type == "DELETE"
+        assert log.action_type == ActionType.DELETE
 
-    def test_audit_log_custom_action_type(self):
-        """Verify AuditLog accepts custom action types."""
-        log = AuditLog(
-            log_id=13,
-            user_id=112,
-            entitiy_type="student",
-            entity_id=13001,
-            action_type="EXPORT",
-            timestamp=datetime.now(),
-        )
-
-        assert log.action_type == "EXPORT"
+    def test_invalid_action_type_raises_error(self):
+        """Verify that an invalid action type raises ValueError."""
+        with pytest.raises(ValueError):
+            AuditLog(
+                log_id=13,
+                user_id="U112",
+                entity_type="student",
+                entity_id=13001,
+                action_type="INVALID_ACTION", 
+                timestamp=datetime.now(),
+            )
 
 
 class TestAuditLogEntityTypes:
@@ -226,111 +216,111 @@ class TestAuditLogEntityTypes:
         """Verify 'student' entity type is recognized."""
         log = AuditLog(
             log_id=14,
-            user_id=113,
-            entitiy_type="student",
+            user_id="U113",
+            entity_type="student",
             entity_id=14001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert log.entitiy_type == "student"
+        assert log.entity_type == "student"
 
     def test_audit_log_assessment_entity_type(self):
         """Verify 'assessment' entity type is recognized."""
         log = AuditLog(
             log_id=15,
-            user_id=114,
-            entitiy_type="assessment",
+            user_id="U114",
+            entity_type="assessment",
             entity_id=15001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert log.entitiy_type == "assessment"
+        assert log.entity_type == "assessment"
 
     def test_audit_log_attendance_entity_type(self):
         """Verify 'attendance' entity type is recognized."""
         log = AuditLog(
             log_id=16,
-            user_id=115,
-            entitiy_type="attendance",
+            user_id="U115",
+            entity_type="attendance",
             entity_id=16001,
             action_type="UPDATE",
             timestamp=datetime.now(),
         )
 
-        assert log.entitiy_type == "attendance"
+        assert log.entity_type == "attendance"
 
     def test_audit_log_alert_entity_type(self):
         """Verify 'alert' entity type is recognized."""
         log = AuditLog(
             log_id=17,
-            user_id=116,
-            entitiy_type="alert",
+            user_id="U116",
+            entity_type="alert",
             entity_id=17001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert log.entitiy_type == "alert"
+        assert log.entity_type == "alert"
 
     def test_audit_log_custom_entity_type(self):
-        """Verify AuditLog accepts custom entity types."""
+        """Verify AuditLog accepts custom entity types (validation is on ActionType only)."""
         log = AuditLog(
             log_id=18,
-            user_id=117,
-            entitiy_type="custom_entity",
+            user_id="U117",
+            entity_type="custom_entity",
             entity_id=18001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert log.entitiy_type == "custom_entity"
+        assert log.entity_type == "custom_entity"
 
 
 class TestAuditLogUserId:
     """Test suite for user ID handling."""
 
-    def test_audit_log_user_id_positive_integer(self):
-        """Verify AuditLog accepts positive integer user IDs."""
+    def test_audit_log_user_id_string(self):
+        """Verify AuditLog accepts string user IDs."""
         log = AuditLog(
             log_id=19,
-            user_id=999,
-            entitiy_type="student",
+            user_id="U999",
+            entity_type="student",
             entity_id=19001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert log.user_id == 999
+        assert log.user_id == "U999"
 
-    def test_audit_log_user_id_zero(self):
-        """Verify AuditLog accepts zero as user ID."""
+    def test_audit_log_user_id_numeric_string(self):
+        """Verify AuditLog accepts numeric string as user ID."""
         log = AuditLog(
             log_id=20,
-            user_id=0,
-            entitiy_type="student",
+            user_id="12345",
+            entity_type="student",
             entity_id=20001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert log.user_id == 0
+        assert log.user_id == "12345"
 
     def test_audit_log_different_user_ids(self):
         """Verify logs with different user IDs are distinguishable."""
         log1 = AuditLog(
             log_id=21,
-            user_id=100,
-            entitiy_type="student",
+            user_id="U100",
+            entity_type="student",
             entity_id=21001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
         log2 = AuditLog(
             log_id=22,
-            user_id=101,
-            entitiy_type="student",
+            user_id="U101",
+            entity_type="student",
             entity_id=22001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -346,8 +336,8 @@ class TestAuditLogEntityId:
         """Verify AuditLog accepts positive integer entity IDs."""
         log = AuditLog(
             log_id=23,
-            user_id=118,
-            entitiy_type="student",
+            user_id="U118",
+            entity_type="student",
             entity_id=99999,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -359,8 +349,8 @@ class TestAuditLogEntityId:
         """Verify AuditLog accepts zero as entity ID."""
         log = AuditLog(
             log_id=24,
-            user_id=119,
-            entitiy_type="student",
+            user_id="U119",
+            entity_type="student",
             entity_id=0,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -372,16 +362,16 @@ class TestAuditLogEntityId:
         """Verify logs with different entity IDs are distinguishable."""
         log1 = AuditLog(
             log_id=25,
-            user_id=120,
-            entitiy_type="student",
+            user_id="U120",
+            entity_type="student",
             entity_id=1001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
         log2 = AuditLog(
             log_id=26,
-            user_id=120,
-            entitiy_type="student",
+            user_id="U120",
+            entity_type="student",
             entity_id=1002,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -398,8 +388,8 @@ class TestAuditLogTimestamp:
         now = datetime(2025, 1, 15, 10, 30, 45)
         log = AuditLog(
             log_id=27,
-            user_id=121,
-            entitiy_type="student",
+            user_id="U121",
+            entity_type="student",
             entity_id=27001,
             action_type="CREATE",
             timestamp=now,
@@ -414,16 +404,16 @@ class TestAuditLogTimestamp:
 
         log1 = AuditLog(
             log_id=28,
-            user_id=122,
-            entitiy_type="student",
+            user_id="U122",
+            entity_type="student",
             entity_id=28001,
             action_type="CREATE",
             timestamp=time1,
         )
         log2 = AuditLog(
             log_id=29,
-            user_id=123,
-            entitiy_type="student",
+            user_id="U123",
+            entity_type="student",
             entity_id=29001,
             action_type="CREATE",
             timestamp=time2,
@@ -437,8 +427,8 @@ class TestAuditLogTimestamp:
         now = datetime(2025, 1, 15, 10, 30, 45, 123456)
         log = AuditLog(
             log_id=30,
-            user_id=124,
-            entitiy_type="student",
+            user_id="U124",
+            entity_type="student",
             entity_id=30001,
             action_type="CREATE",
             timestamp=now,
@@ -454,8 +444,8 @@ class TestAuditLogDetails:
         """Verify AuditLog can have empty details."""
         log = AuditLog(
             log_id=31,
-            user_id=125,
-            entitiy_type="student",
+            user_id="U125",
+            entity_type="student",
             entity_id=31001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -468,8 +458,8 @@ class TestAuditLogDetails:
         """Verify AuditLog accepts short details strings."""
         log = AuditLog(
             log_id=32,
-            user_id=126,
-            entitiy_type="student",
+            user_id="U126",
+            entity_type="student",
             entity_id=32001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -483,8 +473,8 @@ class TestAuditLogDetails:
         long_details = "A" * 1000
         log = AuditLog(
             log_id=33,
-            user_id=127,
-            entitiy_type="student",
+            user_id="U127",
+            entity_type="student",
             entity_id=33001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -497,8 +487,8 @@ class TestAuditLogDetails:
         """Verify AuditLog accepts special characters in details."""
         log = AuditLog(
             log_id=34,
-            user_id=128,
-            entitiy_type="student",
+            user_id="U128",
+            entity_type="student",
             entity_id=34001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -515,8 +505,8 @@ class TestAuditLogDataIntegrity:
         """Verify log_id field is an integer."""
         log = AuditLog(
             log_id=35,
-            user_id=129,
-            entitiy_type="student",
+            user_id="U129",
+            entity_type="student",
             entity_id=35001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -524,38 +514,38 @@ class TestAuditLogDataIntegrity:
 
         assert isinstance(log.log_id, int)
 
-    def test_user_id_is_integer(self):
-        """Verify user_id field is an integer."""
+    def test_user_id_is_string(self):
+        """Verify user_id field is a string."""
         log = AuditLog(
             log_id=36,
-            user_id=130,
-            entitiy_type="student",
+            user_id="U130",
+            entity_type="student",
             entity_id=36001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert isinstance(log.user_id, int)
+        assert isinstance(log.user_id, str)
 
-    def test_entitiy_type_is_string(self):
-        """Verify entitiy_type field is a string."""
+    def test_entity_type_is_string(self):
+        """Verify entity_type field is a string."""
         log = AuditLog(
             log_id=37,
-            user_id=131,
-            entitiy_type="student",
+            user_id="U131",
+            entity_type="student",
             entity_id=37001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert isinstance(log.entitiy_type, str)
+        assert isinstance(log.entity_type, str)
 
     def test_entity_id_is_integer(self):
         """Verify entity_id field is an integer."""
         log = AuditLog(
             log_id=38,
-            user_id=132,
-            entitiy_type="student",
+            user_id="U132",
+            entity_type="student",
             entity_id=38001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -563,25 +553,25 @@ class TestAuditLogDataIntegrity:
 
         assert isinstance(log.entity_id, int)
 
-    def test_action_type_is_string(self):
-        """Verify action_type field is a string."""
+    def test_action_type_is_enum(self):
+        """Verify action_type field is an ActionType Enum instance."""
         log = AuditLog(
             log_id=39,
-            user_id=133,
-            entitiy_type="student",
+            user_id="U133",
+            entity_type="student",
             entity_id=39001,
             action_type="CREATE",
             timestamp=datetime.now(),
         )
 
-        assert isinstance(log.action_type, str)
+        assert isinstance(log.action_type, ActionType)
 
     def test_timestamp_is_datetime(self):
         """Verify timestamp field is a datetime object."""
         log = AuditLog(
             log_id=40,
-            user_id=134,
-            entitiy_type="student",
+            user_id="U134",
+            entity_type="student",
             entity_id=40001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -593,8 +583,8 @@ class TestAuditLogDataIntegrity:
         """Verify details field is a string."""
         log = AuditLog(
             log_id=41,
-            user_id=135,
-            entitiy_type="student",
+            user_id="U135",
+            entity_type="student",
             entity_id=41001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -611,8 +601,8 @@ class TestAuditLogRepr:
         """Verify AuditLog dataclass has a string representation."""
         log = AuditLog(
             log_id=42,
-            user_id=136,
-            entitiy_type="student",
+            user_id="U136",
+            entity_type="student",
             entity_id=42001,
             action_type="CREATE",
             timestamp=datetime.now(),
@@ -626,8 +616,8 @@ class TestAuditLogRepr:
         """Verify AuditLog repr includes significant fields."""
         log = AuditLog(
             log_id=43,
-            user_id=137,
-            entitiy_type="student",
+            user_id="U137",
+            entity_type="student",
             entity_id=43001,
             action_type="DELETE",
             timestamp=datetime(2025, 1, 20, 15, 30, 0),
@@ -635,6 +625,4 @@ class TestAuditLogRepr:
         )
 
         repr_str = repr(log)
-        # Dataclass repr typically includes field names
         assert "log_id" in repr_str or "43" in repr_str
-
