@@ -6,7 +6,7 @@ Tests dataclass instantiation, field validation, and wellbeing metrics.
 import pytest
 from datetime import date
 
-from Student_Wellbeing_App.core.models.WellbeingRecord import WellbeingRecord
+from src.Student_Wellbeing_App.core.models.WellbeingRecord import WellbeingRecord
 
 
 class TestWellbeingRecordInstantiation:
@@ -615,3 +615,4 @@ class TestWellbeingRecordRepr:
         )
 
         assert repr(record1) != repr(record2)
+
