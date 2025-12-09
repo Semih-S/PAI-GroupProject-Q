@@ -5,8 +5,8 @@ Tests dataclass instantiation, field validation, and user permissions.
 
 import pytest
 
-from Student_Wellbeing_App.core.models.User import User
-from Student_Wellbeing_App.core.models.UserRole import UserRole
+from src.Student_Wellbeing_App.core.models.User import User
+from src.Student_Wellbeing_App.core.models.UserRole import UserRole
 
 
 class TestUserInstantiation:
@@ -548,3 +548,4 @@ class TestUserRepr:
         )
 
         assert repr(user1) != repr(user2)
+
