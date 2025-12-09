@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from AlertType import AlertType
+from src.Student_Wellbeing_App.core.models.AlertType import AlertType
 
 
 @dataclass
@@ -11,3 +11,4 @@ class Alert:
     reason: str
     created_at: datetime
     resolved: bool = False
+
