@@ -47,7 +47,6 @@ class WellbeingApp(tk.Tk):
 
         self._current_screen = None
 
-        # Registry of screens (name -> factory function)
         self._screen_factories = {
             "login": self._create_login_screen,
             "bootstrap_admin": self._create_bootstrap_admin_screen
@@ -60,7 +59,7 @@ class WellbeingApp(tk.Tk):
         else:
             self.show_screen("login")
 
-    # ----- internal helpers -----
+
 
     def _clear_screen(self):
         if self._current_screen is not None:
@@ -68,11 +67,7 @@ class WellbeingApp(tk.Tk):
             self._current_screen = None
 
     def show_screen(self, name: str, **kwargs):
-        """
-        Generic screen switcher.
-        name: key in self._screen_factories
-        kwargs: passed to the screen factory (e.g. user=..., student=...)
-        """
+       
         self._clear_screen()
 
         factory = self._screen_factories.get(name)
@@ -87,8 +82,7 @@ class WellbeingApp(tk.Tk):
         """Public helper for Logout buttons etc."""
         self.show_screen("login")
 
-    # ----- factory methods for screens (all LAZY IMPORTS) -----
-
+   
     def _create_login_screen(self):
         from src.Student_Wellbeing_App.core.ui.login_frame import LoginFrame
 
@@ -118,9 +112,7 @@ class WellbeingApp(tk.Tk):
         )
 
     def _create_staff_dashboard(self, user: User):
-        """
-        Shared dashboard for WELLBEING_OFFICER and COURSE_DIRECTOR roles.
-        """
+       
         from src.Student_Wellbeing_App.core.ui.staff_dashboard import StaffDashboard
 
         return StaffDashboard(
@@ -147,13 +139,10 @@ class WellbeingApp(tk.Tk):
 
         return BaseDashboard(self, header)
 
-    # ----- navigation entrypoints -----
+
 
     def handle_login_success(self, auth_result: AuthResult):
-        """
-        Called by LoginFrame when authentication succeeds.
-        Decides which dashboard to show.
-        """
+        
         if auth_result.kind == "student":
             student: Student = auth_result.principal
             self._screen_factories["student_dashboard"] = (
@@ -191,3 +180,4 @@ class WellbeingApp(tk.Tk):
 if __name__ == "__main__":
     app = WellbeingApp()
     app.mainloop()
+
