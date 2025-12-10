@@ -8,7 +8,7 @@ A Python-based student wellbeing management system providing complete functional
 ### 1. Clone Project
 ```bash
 git clone https://github.com/Semih-S/PAI-GroupProject-Q.git
-cd PAI-GroupProject-Q/PAI-GroupProject-Q
+cd PAI-GroupProject-Q
 ```
 
 ### 2. Create Virtual Environment
@@ -29,7 +29,6 @@ pip install -r requirements.txt
 
 ### 4. Database Setup
 
-#### Development (SQLite)
 System uses SQLite by default. No additional configuration needed. Database file will be created at:
 ```
 PAI-GroupProject-Q\PAI-GroupProject-Q\src\Student_Wellbeing_App\core\database\student_wellbeing_db.sqlite3
@@ -54,7 +53,7 @@ python -m src.Student_Wellbeing_App.core.database.WipeDatabase
 
 ### Web Interface (Streamlit)
 ```bash
-streamlit run src/Student_Wellbeing_App/core/streamlit_UI/app.py
+python -m streamlit run src/Student_Wellbeing_App/core/streamlit_UI/app.py
 ```
 Application opens in browser at: http://localhost:8501
 
