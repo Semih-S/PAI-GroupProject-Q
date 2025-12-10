@@ -31,7 +31,7 @@ pip install -r requirements.txt
 
 System uses SQLite by default. No additional configuration needed. Database file will be created at:
 ```
-PAI-GroupProject-Q\PAI-GroupProject-Q\src\Student_Wellbeing_App\core\database\student_wellbeing_db.sqlite3
+src\Student_Wellbeing_App\core\database\student_wellbeing_db.sqlite3
 ```
 
 ### 5. Initialize Database
@@ -61,4 +61,5 @@ Application opens in browser at: http://localhost:8501
 ```
  pytest src/Student_Wellbeing_App/tests/test_wellbeing_service.py
 ```
+
 
